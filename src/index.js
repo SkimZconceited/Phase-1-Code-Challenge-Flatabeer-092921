@@ -1,7 +1,5 @@
 const init = () => {
 
-    
-    // console.log();
     const url = 'http://localhost:3000/beers';
     let img = document.querySelector('img#beer-image');
     let beerName = document.querySelector('#beer-name');
@@ -12,13 +10,13 @@ const init = () => {
     let btnSub2 = document.querySelectorAll('button[type = "submit"]')[1];
     let uptRev = document.querySelector('textarea#review');
     let showRev = document.querySelectorAll('ul#review-list li')[1];
-    // let form1 = document.querySelector('#description-form');
-    
-    // form1.addEventListener('submit', (e) => e.preventDefault());
-    // form2.addEventListener('submit', (e) => e.preventDefault());
-    
     let n = 1;
     
+    let navBeer = document.querySelectorAll('ul#beer-list li');
+    // let navBeer1 = document.querySelector('ul#beer-list li');
+    // let navBeer2 = document.querySelector('ul#beer-list li')[1];
+    
+    // console.log(navBeer1.textContent);
     
     // console.log(showRev.textContent)
     // console.log(liReview.textContent)
@@ -26,7 +24,8 @@ const init = () => {
     fetch(url)
     .then(res => res.json())
     .then(db => db.forEach(d => {
-        // Creates a copy of the array from the server and to an array that will be used to print out random results on the review section of the site
+        
+    //     // Creates a copy of the array from the server and to an array that will be used to print out random results on the review section of the site
         if (d.id === n) {
             // Adding an img link to the src of the img element
             img.src = d.image_url;
@@ -65,6 +64,8 @@ const init = () => {
                 dat.forEach(dd => {
                     if (dd.id === n) {
                         const allRev = dd.reviews;
+
+                        liReview.innerHTML = ''; //Gets rid of the initial text inside
                         allRev.forEach(aR => {
                             const com = `<li>${aR}</li>`;
                             liReview.insertAdjacentHTML('beforeend', com);
@@ -112,13 +113,52 @@ const init = () => {
                         showRev.textContent = dd.reviews[lenRev];
                     }
                 })
-            })
+            });    
         }
     }));
     
-    
-    
+    // This goes through all the li's and assign a random beer name
+    fetch(url)
+    .then(res => res.json())
+    .then(data => {
+        let rndHolder = [];
+
+        navBeer.forEach(b => {
+            const ranBeer = data[Math.floor(Math.random() * data.length)]    
+            let randName = ranBeer.name;
+            rndHolder.push(randName);
+            b.textContent = randName;
+        });
+        
+        // These line use the function updateData() to update data upon a click event in the nav beer list 
+        navBeer[0].addEventListener('click', () => { data.forEach(d => { updateData(d, 0); }); });
+        navBeer[1].addEventListener('click', () => { data.forEach(d => { updateData(d, 1); }); });
+        navBeer[2].addEventListener('click', () => { data.forEach(d => { updateData(d, 2); }); });
+        
+        // Function updates the web page according to the li clicked in the web page
+        function updateData (x, y) {
+
+            if (x.name === rndHolder[y]) {
+                const allRev = x.reviews;
+                const lenRev = x.reviews.length - 1;
+                
+                console.log(allRev)
+                // console.log(d.image_url);
+                beerName.textContent = x.name;
+                img.src = x.image_url; //needs fixing it takes a while to load the image
+                
+                liReview.innerHTML = '';
+                allRev.forEach(a => {
+                    const com = `<li>${a}</li>`;
+                    liReview.insertAdjacentHTML('beforeend', com);
+                });
+                
+                showRev.textContent = x.reviews[lenRev];
+                }
+        }
+    });    
 };
+
 
 const form1 = document.querySelector('#description-form');
 form1.addEventListener('submit', (e) => e.preventDefault());
