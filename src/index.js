@@ -13,17 +13,16 @@ const init = () => {
     let uptRev = document.querySelector('textarea#review');
     let showRev = document.querySelectorAll('ul#review-list li')[1];
     // let form1 = document.querySelector('#description-form');
-    // let form2 = document.querySelector('#review-form');
-
+    
     // form1.addEventListener('submit', (e) => e.preventDefault());
     // form2.addEventListener('submit', (e) => e.preventDefault());
-
+    
     let n = 1;
-
-
-    console.log(showRev.textContent)
-    console.log(liReview.textContent)
-
+    
+    
+    // console.log(showRev.textContent)
+    // console.log(liReview.textContent)
+    
     fetch(url)
     .then(res => res.json())
     .then(db => db.forEach(d => {
@@ -40,8 +39,7 @@ const init = () => {
             
             // This event listener listens for a click event in the update button then it gets the data from the server and updates the description of the beer 
             btnSub1.addEventListener('click', () => {
-                // des.textContent = uptDes.value;
-                txtHolder = uptDes.value;
+                let txtHolder = uptDes.value;
                 
                 const jsonString = JSON.stringify({
                     "id": n,
@@ -56,33 +54,42 @@ const init = () => {
                     headers: {'Content-Type': 'application/json; charset=UTF-8'},
                     body: jsonString
                 }
-
+                
                 fetch(`http://localhost:3000/beers/${n}`, options)
                 .then(res => res.json())
                 .then(data => data);
-                
             });
-            
+
             // This accesses the review array in the db
-            let rev = [d.reviews];
-            let randomReview = rev[(Math.floor(Math.random() * rev.length))];
-            
-            liReview.textContent = randomReview;
-            
-            
-            let putRev = uptRev.value;
-            
-            
-            
+            fetch(url).then(res => res.json()).then(dat => {
+                dat.forEach(dd => {
+                    if (dd.id === n) {
+                        const allRev = dd.reviews;
+                        allRev.forEach(aR => {
+                            const com = `<li>${aR}</li>`;
+                            liReview.insertAdjacentHTML('beforeend', com);
+                        });
+                    }
+                })
+            });
+
             btnSub2.addEventListener('click', () => {
-                let putToServer = d.reviews.push(putRev);
+
+                let putToServer = uptRev.value;
+                let dc = [];
+
+                d.reviews.forEach(cc => {dc.push(cc)});
+
+                if (putToServer === true) {
+                    dc.push(putToServer);
+                }
                 
                 const jsonString = JSON.stringify({
                     "id": n,
                     "name": d.name,
                     "description": d.description,
-                    "image_url": d.image_url, // Changed this part
-                    "reviews": d.reviews.push(putRev)
+                    "image_url": d.image_url,
+                    "reviews": dc
                 });
                 
                 const options = {
@@ -94,14 +101,29 @@ const init = () => {
                 fetch(`http://localhost:3000/beers/${n}`, options)
                 .then(res => res.json())
                 .then(data => data);
-                // showRev.textContent = rev[rev.length - 1];
-                // This is not where it is supposed to be
             });
+
+            // This fetch req goes and gets all the data/ reviews in the database
+            fetch(url).then(res => res.json()).then(dat => {
+                dat.forEach(dd => {
+                    if (dd.id === n) {
+                        const allRev = dd.reviews;
+                        const lenRev = dd.reviews.length - 1;
+                        showRev.textContent = dd.reviews[lenRev];
+                    }
+                })
+            })
         }
     }));
     
     
     
 };
+
+const form1 = document.querySelector('#description-form');
+form1.addEventListener('submit', (e) => e.preventDefault());
+
+const form2 = document.querySelector('#review-form');
+form2.addEventListener('submit', (e) => e.preventDefault());
 
 document.addEventListener('DOMContentLoaded', init());
