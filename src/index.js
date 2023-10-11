@@ -10,21 +10,13 @@ const init = () => {
     let btnSub2 = document.querySelectorAll('button[type = "submit"]')[1];
     let uptRev = document.querySelector('textarea#review');
     let showRev = document.querySelectorAll('ul#review-list li')[1];
-    let n = 1;
+    let n = 1; //it was empty because I wanted to update it so the clicked beer should update the values in the server
     
     let navBeer = document.querySelectorAll('ul#beer-list li');
-    // let navBeer1 = document.querySelector('ul#beer-list li');
-    // let navBeer2 = document.querySelector('ul#beer-list li')[1];
-    
-    // console.log(navBeer1.textContent);
-    
-    // console.log(showRev.textContent)
-    // console.log(liReview.textContent)
     
     fetch(url)
     .then(res => res.json())
     .then(db => db.forEach(d => {
-        
     //     // Creates a copy of the array from the server and to an array that will be used to print out random results on the review section of the site
         if (d.id === n) {
             // Adding an img link to the src of the img element
@@ -59,7 +51,7 @@ const init = () => {
                 .then(data => data);
             });
 
-            // This accesses the review array in the db
+            // This accesses the review array in the server
             fetch(url).then(res => res.json()).then(dat => {
                 dat.forEach(dd => {
                     if (dd.id === n) {
@@ -70,50 +62,48 @@ const init = () => {
                             const com = `<li>${aR}</li>`;
                             liReview.insertAdjacentHTML('beforeend', com);
                         });
+                        
+                        // This fetch req goes and gets all the data/ reviews in the database
+                        if (dd.id === n) {
+                            const lenRev = dd.reviews.length - 1;
+                            showRev.textContent = dd.reviews[lenRev];
+                        }
                     }
                 })
             });
 
             btnSub2.addEventListener('click', () => {
-
+                
                 let putToServer = uptRev.value;
                 let dc = [];
-
+                
                 d.reviews.forEach(cc => {dc.push(cc)});
+                // console.log(Boolean(putToServer));
 
-                if (putToServer === true) {
+                if (Boolean(putToServer) === true) {
                     dc.push(putToServer);
-                }
-                
-                const jsonString = JSON.stringify({
-                    "id": n,
-                    "name": d.name,
-                    "description": d.description,
-                    "image_url": d.image_url,
-                    "reviews": dc
-                });
-                
-                const options = {
-                    method: 'PUT',
-                    headers: {'Content-Type': 'application/json; charset=UTF-8'},
-                    body: jsonString
-                }
-                
-                fetch(`http://localhost:3000/beers/${n}`, options)
-                .then(res => res.json())
-                .then(data => data);
-            });
-
-            // This fetch req goes and gets all the data/ reviews in the database
-            fetch(url).then(res => res.json()).then(dat => {
-                dat.forEach(dd => {
-                    if (dd.id === n) {
-                        const allRev = dd.reviews;
-                        const lenRev = dd.reviews.length - 1;
-                        showRev.textContent = dd.reviews[lenRev];
+                    
+                    const jsonString = JSON.stringify({
+                        "id": n,
+                        "name": d.name,
+                        "description": d.description,
+                        "image_url": d.image_url,
+                        "reviews": dc
+                    });
+                    
+                    const options = {
+                        method: 'PUT',
+                        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+                        body: jsonString
                     }
-                })
+                    
+                    fetch(`http://localhost:3000/beers/${n}`, options)
+                    .then(res => res.json())
+                    .then(data => data);
+                    // console.log(dc)
+                }
             });    
+                
         }
     }));
     
@@ -137,8 +127,11 @@ const init = () => {
         
         // Function updates the web page according to the li clicked in the web page
         function updateData (x, y) {
-
+            // I am thinking I should add a function too the other fetch commands so we can be able to seemless update the n variable hence successful update into the server
+            
             if (x.name === rndHolder[y]) {
+                // console.log(typeof x.id);
+                // n = x.id;
                 const allRev = x.reviews;
                 const lenRev = x.reviews.length - 1;
                 
