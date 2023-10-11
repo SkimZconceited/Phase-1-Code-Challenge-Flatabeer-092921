@@ -146,6 +146,8 @@ const init = () => {
                 // console.log(d.image_url);
                 beerName.textContent = x.name;
                 img.src = x.image_url; //needs fixing it takes a while to load the image
+
+                des.textContent = x.description;
                 
                 liReview.innerHTML = '';
                 allRev.forEach(a => {
